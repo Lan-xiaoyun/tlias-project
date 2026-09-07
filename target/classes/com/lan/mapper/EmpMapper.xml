@@ -79,6 +79,12 @@
             count(*) num
         from emp group by pos order by num;
     </select>
+    <select id="countGenderData" resultType="java.util.Map">
+        select
+            if(gender = 1,'男性员工','女性员工') name,
+            count(*) value
+        from emp group by gender;
+    </select>
 
     <!--修改员工信息-->
     <update id="update" parameterType="com.lan.pojo.Emp">

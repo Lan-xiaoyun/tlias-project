@@ -81,11 +81,9 @@
     </select>
     <select id="countGenderData" resultType="java.util.Map">
         select
-            (case gender when 1 then'男性员工'
-                when 2 then '女性员工'
-                else '其他' end) gender,
-            count(*) num
-        from emp group by gender order by num;
+            if(gender = 1,'男性员工','女性员工') name,
+            count(*) value
+        from emp group by gender;
     </select>
 
     <!--修改员工信息-->
