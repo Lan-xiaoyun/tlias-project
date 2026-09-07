@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.lan.mapper.EmpMapper">
+    <select id="list" resultType="com.lan.pojo.Emp">
+        select e.*,d.name deptName from emp e left join dept d on e.dept_id=d.id
+        <where>
+            <if test="name!=null and name!=''">
+                e.name like concat('%',#{name},'%')
+            </if>
+            <if test="gender!=null">
+                and gender = #{gender}
+            </if>
+            <if test="begin!=null and end!=null">
+                and e.entry_date between #{begin} and #{end}
+            </if>
+        </where> order by e.update_time desc
+    </select>
+    <delete id="deleteBatch">
+        delete from emp where id in
+        <foreach collection="ids" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <resultMap id="empResultMap" type="com.lan.pojo.Emp" autoMapping="true">
+        <!-- 主键映射 -->
+        <id property="id" column="id"/>
+
+        <!-- 基本属性自动映射（因为 autoMapping=true，下面这些可以省略，但为了清晰保留） -->
+        <result property="username" column="username"/>
+        <result property="password" column="password"/>
+        <result property="name" column="name"/>
+        <result property="gender" column="gender"/>
+        <result property="phone" column="phone"/>
+        <result property="job" column="job"/>
+        <result property="salary" column="salary"/>
+        <result property="image" column="image"/>
+        <result property="entryDate" column="entry_date"/>
+        <result property="deptId" column="dept_id"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="deptName" column="deptName"/>
+
+        <!-- 关联的 EmpExpr 列表（collection） -->
+        <collection property="exprList" ofType="com.lan.pojo.EmpExpr">
+            <id property="id" column="ee_id"/>
+            <result property="empId" column="emp_id"/>
+            <result property="begin" column="begin"/>
+            <result property="end" column="end"/>
+            <result property="company" column="company"/>
+            <result property="job" column="ee_job"/>
+        </collection>
+    </resultMap>
+    <!--根据员工id查询员工基本信息和工作经历-->
+    <select id="getById" resultMap="empResultMap">
+        select e.*,
+               d.name deptName,
+               ee.id ee_id,
+               ee.emp_id,
+               ee.begin,
+               ee.end,
+               ee.company,
+               ee.job ee_job
+        from emp e
+            left join emp_expr ee on e.id = ee.emp_id
+        join dept d on e.dept_id = d.id
+        where e.id = #{id}
+    </select>
+
+    <!--修改员工信息-->
+    <update id="update" parameterType="com.lan.pojo.Emp">
+            update emp
+            <set>
+                <if test="username != null and username != ''">
+                    username = #{username},
+                </if>
+                <if test="password != null and password != ''">
+                    password = #{password},
+                </if>
+                <if test="name != null and name != ''">
+                    name = #{name},
+                </if>
+                <if test="gender != null">
+                    gender = #{gender},
+                </if>
+                <if test="image != null and image != ''">
+                    image = #{image},
+                </if>
+                <if test="deptId != null">
+                    dept_id = #{deptId},
+                </if>
+                <if test="entryDate != null">
+                    entry_date = #{entryDate},
+                </if>
+                <if test="phone != null">
+                    phone = #{phone},
+                </if>
+                <if test="job != null">
+                    job = #{job},
+                </if>
+                <if test="salary != null">
+                    salary = #{salary},
+                </if>
+                <if test="updateTime != null">
+                    update_time = #{updateTime},
+                </if>
+            </set>
+            where id = #{id}
+    </update>
+</mapper>
